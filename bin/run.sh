@@ -16,6 +16,10 @@ echo "build docker image"
 DATA_DIR=$PROJECT_ROOT/data
 echo "Using data in $DATA_DIR"
 
+# folder containing outputz
+OUTPUT_DIR=$PROJECT_ROOT/output
+echo "Writing outputs to $OUTPUT_DIR"
+
 ##### RUN #####
 echo "Starting container..."
 
@@ -23,4 +27,6 @@ docker run --rm \
            -it \
            -p 8888:8888 \
            -v $DATA_DIR:/data \
-           dominicbreuker/resnet_50_docker:latest
+           -v $OUTPUT_DIR:/output \
+           dominicbreuker/resnet_50_docker:latest \
+           /bin/sh -c "python /resnet_50/extractor.py -e jpg -m feature"
