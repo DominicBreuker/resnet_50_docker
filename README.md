@@ -1,5 +1,5 @@
 # ResNet 50 inside Docker
-Easily extract image features from various layers of ResNet50 with this Docker image.
+Easily extract image features from various layers of ResNet50.
 Or just use it in prediction mode to get labels for input images.
 
 ## Tests
