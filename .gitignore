@@ -1,5 +1,6 @@
 data
 output
+base_image/resnet_50_tf.h5
 
 ############# PYTHON ###########
 

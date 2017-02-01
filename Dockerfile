@@ -1,8 +1,11 @@
 FROM dominicbreuker/resnet_50_docker_base:latest
 
-RUN pip install 'tqdm==4.11.2'
+RUN pip install -U pip && \
+    pip install 'keras==1.2.1' && \
+    pip install 'h5py==2.6.0' && \
+    pip install 'pillow==4.0.0' && \
+    pip install 'tqdm==4.11.2'
 
-COPY resnet_50/extractor.py /resnet_50/extractor.py
-COPY resnet_50/result_saver /resnet_50/result_saver
+COPY resnet_50/ /resnet_50/
 
 CMD ["python", "/resnet_50/extractor.py", "--help"]

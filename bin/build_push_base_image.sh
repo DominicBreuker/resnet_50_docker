@@ -6,10 +6,12 @@ FOLDER="$(dirname $script)"
 source $FOLDER/utils.sh
 PROJECT_ROOT="$(abspath $FOLDER/..)"
 
-echo "building base image in folder $PROJECT_ROOT"
+BASE_IMAGE_FOLDER=$PROJECT_ROOT/base_image
 
-docker build -f $PROJECT_ROOT/base_image/Dockerfile \
+echo "building base image in folder $BASE_IMAGE_FOLDER"
+
+docker build -f $BASE_IMAGE_FOLDER/Dockerfile \
              -t dominicbreuker/resnet_50_docker_base:latest \
-             $PROJECT_ROOT
+             $BASE_IMAGE_FOLDER
 
-docker push dominicbreuker/resnet_50_docker_base
+#docker push dominicbreuker/resnet_50_docker_base

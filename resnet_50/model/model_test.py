@@ -1,6 +1,6 @@
 import os
 import numpy as np
-from resnet50 import ResNet50
+from resnet50 import resnet_50
 from keras.preprocessing import image
 from imagenet_utils import preprocess_input, decode_predictions
 
@@ -34,7 +34,7 @@ def test():
 
 
 def load_model():
-    return ResNet50(weights='imagenet')
+    return resnet_50()
 
 
 def predict(model, image_path):
