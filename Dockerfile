@@ -8,4 +8,6 @@ RUN pip install -U pip && \
 
 COPY resnet_50/ /resnet_50/
 
+RUN ["python", "/resnet_50/model/model_test.py"]
+
 CMD ["python", "/resnet_50/extractor.py", "--help"]

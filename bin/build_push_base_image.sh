@@ -14,4 +14,4 @@ docker build -f $BASE_IMAGE_FOLDER/Dockerfile \
              -t dominicbreuker/resnet_50_docker_base:latest \
              $BASE_IMAGE_FOLDER
 
-#docker push dominicbreuker/resnet_50_docker_base
+docker push dominicbreuker/resnet_50_docker_base

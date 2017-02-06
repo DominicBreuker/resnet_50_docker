@@ -4,11 +4,11 @@ from sets import Set
 from datetime import datetime
 import numpy as np
 from tqdm import tqdm
-from model.resnet50 import ResNet50
+from model.resnet50 import build_resnet_50
 from model.imagenet_utils import preprocess_input, decode_predictions
 from result_saver.npy import save_results, load_latest_results
 from keras.preprocessing import image
-from keras.layers import Input, Flatten, Dense
+from keras.layers import Input, Flatten, Dense, AveragePooling2D
 from keras.models import Model, load_model
 
 IMAGE_DIRECTORY = '/data'
@@ -61,7 +61,7 @@ def extract_class_labels(model, image_file, image_size):
 
 def extract_features(model, image_file, image_size):
     image = load_image(image_file)
-    return model.predict(image)[0]
+    return model.predict(image)
 
 
 def strip_data_folder_from_image_paths(image_files):
@@ -76,10 +76,10 @@ def extract_from_network(args):
     input_size = (args.height, args.width)
     image_files = get_image_files(args.extension)
     if args.mode == 'predict':
-        model = ResNet50(include_top=True, weights='imagenet')
+        model = build_resnet_50()
         extractor = extract_class_labels
     elif args.mode == 'feature':
-        model = ResNet50(include_top=False, weights='imagenet')
+        model = build_resnet_50(include_top=False)
         extractor = extract_features
     else:
         raise Exception("unsupported mode: {}".format(args.mode))
@@ -137,7 +137,8 @@ def get_one_hot_class_labels(classes, image_files):
 
 def build_model(num_classes, input_shape):
     feature_input = Input(shape=input_shape)
-    x = Flatten()(feature_input)
+    x = AveragePooling2D((7, 7), name='avg_pool')(feature_input)
+    x = Flatten()(x)
     x = Dense(num_classes, activation='softmax', name='custom_fc')(x)
     model = Model(input=feature_input, output=x)
     model.compile(optimizer='adam', loss='categorical_crossentropy',
