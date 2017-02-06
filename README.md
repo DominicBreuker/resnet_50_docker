@@ -1,3 +1,5 @@
+[![Docker Automated build](https://img.shields.io/docker/automated/jrottenberg/ffmpeg.svg)](https://hub.docker.com/r/dominicbreuker/resnet_50_docker/)
+
 # ResNet 50 inside Docker
 Easily extract image features from various layers of ResNet50.
 Or just use it in prediction mode to get labels for input images.
