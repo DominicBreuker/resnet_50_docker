@@ -29,4 +29,4 @@ docker run --rm \
            -v $DATA_DIR:/data \
            -v $OUTPUT_DIR:/output \
            dominicbreuker/resnet_50_docker:latest \
-           /bin/sh -c "python /resnet_50/training.py -e jpg"
+           /bin/sh -c "python /resnet_50/extracting.py -e jpg -w imagenet_refined -fcn True -head True -hs 300 -ws 300"
