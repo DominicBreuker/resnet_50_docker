@@ -30,9 +30,7 @@ def extract_features(extension, img_size):
 
 def train_model(image_files, features):
     trainer = Trainer(image_files, features)
-    model = trainer.load_latest_model()
-    if model is None:
-        model = trainer.train()
+    model = trainer.train()
     print(model)
     return model
 

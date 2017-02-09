@@ -1,10 +1,13 @@
 import os
+import sys
 import numpy as np
 from sets import Set
 from datetime import datetime
 from constants import OUTPUT_DIRECTORY
-from keras.models import Model, load_model
-from keras.layers import Input, Flatten, Dense, AveragePooling2D
+from .custom_model.definition import build, fit
+from keras.models import load_model
+
+sys.path.append('/resnet_50/main/custom_model')
 
 
 class Trainer(object):
@@ -17,7 +20,7 @@ class Trainer(object):
     def train(self):
         class_labels = self._one_hot_class_labels()
         model = self._build_model()
-        model.fit(self.features, class_labels)
+        self._fit_model(model, class_labels)
         self._save_model(model)
         return model
 
@@ -64,14 +67,10 @@ class Trainer(object):
         return class_labels
 
     def _build_model(self):
-        feature_input = Input(shape=self.input_shape)
-        x = AveragePooling2D((7, 7), name='avg_pool')(feature_input)
-        x = Flatten()(x)
-        x = Dense(len(self.classes), activation='softmax', name='custom_fc')(x)
-        model = Model(input=feature_input, output=x)
-        model.compile(optimizer='adam', loss='categorical_crossentropy',
-                      metrics=['accuracy'])
-        return model
+        return build(self.input_shape, len(self.classes))
+
+    def _fit_model(self, model, class_labels):
+        fit(model, self.features, class_labels)
 
     def _model_path(self):
         current_time = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
@@ -84,8 +83,6 @@ class Trainer(object):
 
     def _model_filename_base(self):
         return self.model_filename_base(self.input_shape)
-        # return "custom_top_{}x{}".format(self.input_shape[0],
-        #                                  self.input_shape[1])
 
     def _save_model(self, model):
         print("Saving custom top model to {}".format(self._model_path()))

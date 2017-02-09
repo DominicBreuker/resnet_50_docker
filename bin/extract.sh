@@ -25,7 +25,6 @@ echo "Starting container..."
 
 docker run --rm \
            -it \
-           -p 8888:8888 \
            -v $DATA_DIR:/data \
            -v $OUTPUT_DIR:/output \
            dominicbreuker/resnet_50_docker:latest \

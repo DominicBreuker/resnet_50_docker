@@ -16,17 +16,21 @@ echo "build docker image"
 DATA_DIR=$PROJECT_ROOT/data
 echo "Using data in $DATA_DIR"
 
-# folder containing outputz
+# folder containing output
 OUTPUT_DIR=$PROJECT_ROOT/output
 echo "Writing outputs to $OUTPUT_DIR"
+
+# folder containing custom model definition
+CUSTOM_MODEL_DIR=$PROJECT_ROOT/my_model
+echo "Custom model is in $CUSTOM_MODEL_DIR"
 
 ##### RUN #####
 echo "Starting container..."
 
 docker run --rm \
            -it \
-           -p 8888:8888 \
            -v $DATA_DIR:/data \
            -v $OUTPUT_DIR:/output \
+           -v $CUSTOM_MODEL_DIR:/resnet_50/main/custom_model \
            dominicbreuker/resnet_50_docker:latest \
            /bin/sh -c "python /resnet_50/training.py -e jpg"
