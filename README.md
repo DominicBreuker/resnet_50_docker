@@ -1,4 +1,4 @@
-[![Docker Automated build](https://img.shields.io/docker/automated/jrottenberg/ffmpeg.svg)](https://hub.docker.com/r/dominicbreuker/resnet_50_docker/)
+[![Docker Automated build](https://img.shields.io/badge/docker%20build-automated-blue.svg)](https://hub.docker.com/r/dominicbreuker/resnet_50_docker/)
 
 # ResNet 50 inside Docker
 Easily extract image features from ResNet50 pre-trained on ImageNet.
