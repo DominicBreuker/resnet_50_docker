@@ -1,13 +1,7 @@
 import os
-import sys
 import numpy as np
 from sets import Set
-from datetime import datetime
-from constants import OUTPUT_DIRECTORY
-from .custom_model.definition import build, fit
-from keras.models import load_model
-
-sys.path.append('/resnet_50/main/custom_model')
+from model.custom_model.definition import CustomHead
 
 
 class Trainer(object):
@@ -16,6 +10,7 @@ class Trainer(object):
         self.features = features
         self.classes = self._get_classes()
         self.input_shape = self._get_input_shape()
+        self.custom_head = CustomHead(len(self.classes))
 
     def train(self):
         class_labels = self._one_hot_class_labels()
@@ -23,22 +18,6 @@ class Trainer(object):
         self._fit_model(model, class_labels)
         self._save_model(model)
         return model
-
-    def load_latest_model(self):
-        model_files = []
-        for root, directories, filenames in os.walk(OUTPUT_DIRECTORY):
-            for filename in filenames:
-                if filename.endswith(".h5"):
-                    if filename.startswith(self._model_filename_base()):
-                        model_files.append(os.path.join(OUTPUT_DIRECTORY,
-                                                        filename))
-        model_files.sort()
-        if len(model_files) == 0:
-            return None
-        else:
-            print("\nLoading existing custom top model:\n{}\n"
-                  .format(model_files[-1]))
-            return load_model(os.path.join(OUTPUT_DIRECTORY, model_files[-1]))
 
     def _get_classes(self):
         ''' Infers classes from the image paths.
@@ -67,23 +46,10 @@ class Trainer(object):
         return class_labels
 
     def _build_model(self):
-        return build(self.input_shape, len(self.classes))
+        return self.custom_head.build(self.input_shape)
 
     def _fit_model(self, model, class_labels):
-        fit(model, self.features, class_labels)
-
-    def _model_path(self):
-        current_time = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
-        filename = "{}_{}.h5".format(self._model_filename_base(), current_time)
-        return os.path.join(OUTPUT_DIRECTORY, filename)
-
-    @staticmethod
-    def model_filename_base(input_shape):
-        return "custom_top_{}x{}".format(input_shape[0], input_shape[1])
-
-    def _model_filename_base(self):
-        return self.model_filename_base(self.input_shape)
+        self.custom_head.fit(model, self.features, class_labels)
 
     def _save_model(self, model):
-        print("Saving custom top model to {}".format(self._model_path()))
-        model.save(self._model_path())
+        self.custom_head.save(model)

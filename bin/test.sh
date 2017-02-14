@@ -28,5 +28,5 @@ docker run --rm \
            -v $DATA_DIR:/data \
            -v $OUTPUT_DIR:/output \
            dominicbreuker/resnet_50_docker:latest \
-           /bin/sh -c "python /resnet_50/model/model_test.py"
+           /bin/sh -c "python /resnet_50/model_test.py"
            #/bin/bash

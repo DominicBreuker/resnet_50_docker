@@ -1,7 +1,11 @@
+import sys
 import argparse
 from main.extractor import Extractor
 from main.trainer import Trainer
 from model.resnet50 import build_resnet_50
+
+sys.path.append('/resnet_50/model')
+sys.path.append('/resnet_50/main')
 
 
 def parse_args():
@@ -21,7 +25,7 @@ def extract_features(extension, img_size):
     image_files, features = extractor.load_latest_extractions()
     if image_files is None or features is None:
         name = "{}x{}_{}".format(img_size[0], img_size[1], "feature-maps")
-        model = build_resnet_50(include_top=False)
+        model = build_resnet_50(cls_head=None)
         image_files, features = extractor.extract(name, model, img_size)
     print(image_files)
     print(features.shape)

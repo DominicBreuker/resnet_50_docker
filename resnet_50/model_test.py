@@ -1,11 +1,13 @@
+import sys
 import os
 import numpy as np
-from resnet50 import build_resnet_50
+from model.resnet50 import build_resnet_50
 from keras.preprocessing import image
-from imagenet_utils import preprocess_input, decode_predictions
+from model.imagenet_utils import preprocess_input, decode_predictions
+
+sys.path.append('/resnet_50/model')
 
 IMAGE_PATH = '/resnet_50/model/test_images'
-CUSTOM_TOP_PATH = '/resnet_50/model/custom_top_cat_nocat.h5'
 
 IMAGE_CLASS_LABELS = {
     '/resnet_50/model/test_images/cat1.jpg': "chow",
@@ -93,7 +95,7 @@ def test_imagenet_heatmap():
 def test_custom_head_classification():
     print("Testing classfication mode with custom head...")
 
-    model = build_resnet_50(top_weights=CUSTOM_TOP_PATH)
+    model = build_resnet_50(cls_head='custom')
     images = load_test_image_paths()
     preds = []
     for image_path in images:
@@ -116,8 +118,7 @@ def test_custom_head_classification():
 def test_custom_head_heatmap():
     print("Testing fully convolutial mode with custom head...")
 
-    model = build_resnet_50(fully_convolutional=True,
-                            top_weights=CUSTOM_TOP_PATH)
+    model = build_resnet_50(fully_convolutional=True, cls_head='custom')
     images = load_test_image_paths()
     for image_path in images:
         if "cat3" in image_path:
@@ -137,10 +138,10 @@ def test_custom_head_heatmap():
     true_heatmap = np.array([[0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.],
                              [0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.],
                              [0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.],
-                             [0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.],
-                             [0.,  0.,  0.,  0.,  1.,  1.,  0.,  0.,  0.],
-                             [0.,  0.,  0.,  0.,  1.,  1.,  0.,  0.,  0.],
                              [0.,  0.,  0.,  0.,  1.,  0.,  0.,  0.,  0.],
+                             [0.,  0.,  0.,  1.,  1.,  1.,  0.,  0.,  0.],
+                             [0.,  0.,  0.,  1.,  1.,  1.,  0.,  0.,  0.],
+                             [0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.],
                              [0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.],
                              [0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.]])
 

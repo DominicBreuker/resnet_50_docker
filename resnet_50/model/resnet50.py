@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 import numpy as np
 import h5py
 
@@ -10,62 +8,63 @@ from keras.layers import ZeroPadding2D, AveragePooling2D
 from keras.layers import BatchNormalization
 from keras.models import Model
 
+from model.custom_model.definition import CustomHead
 
-def build_resnet_50(include_top=True, fully_convolutional=False,
-                    main_weights='imagenet', top_weights='imagenet'):
+
+def build_resnet_50(fully_convolutional=False, main_weights='imagenet',
+                    cls_head='imagenet'):
     '''Builds a ResNet50 model with Keras.
     Arguments:
-    - include_top: If True, include dense classification layer at the top.
-                   Set to False to extract features
     - fully_convolutional: If True, the top dense layer will be
                            convolutionized.
     - main_weights: Set to 'imagenet' to load image net weights or to None
                     to load no weights.
-    - top_weights:  Set to 'imagenet' to load image net weights, to None to
-                    load no weights, or specify a path to a custom top layer
-                    weights file
+    - cls_head:  Set to 'imagenet' to load image net head with weights,
+                 or pass in 'custom' to to create a customly defined head,
+                 or set to None if you do not want a classfication head.
     '''
-    if top_weights is not None and include_top:
-        num_classes = get_num_classes(top_weights)
-
-    if not include_top or fully_convolutional:
+    # load main part
+    if cls_head is None or fully_convolutional:
         img_input, x = build_resnet_50_main((None, None, 3))
     else:
         img_input, x = build_resnet_50_main((224, 224, 3))
 
-    if include_top:
-        x = add_top_layer(x, num_classes, fully_convolutional)
+    # load head part
+    if cls_head == 'imagenet':
+        x = add_top_layer_imagenet(x, fully_convolutional)
+    elif cls_head == 'custom':
+        custom_head = CustomHead()
+        x = add_top_layer_custom_head(x, fully_convolutional, custom_head)
 
     model = Model(img_input, x)
 
+    # load main weights
     if main_weights is not None:
         load_main_weights(model, main_weights)
 
-    if top_weights is not None and include_top:
-        load_top_weights(model, top_weights, fully_convolutional)
+    # load head weights
+    if cls_head == 'imagenet':
+        load_top_layer_weights_imagenet(model, fully_convolutional)
+    elif cls_head == 'custom':
+        load_top_layer_weights_custom(model, fully_convolutional, custom_head)
 
     return model
 
 
-def get_num_classes(top_weights):
-    if top_weights == 'imagenet':
-        return 1000
-    else:
-        W, b = get_top_layer_weights_custom(top_weights)
-        return W.shape[1]
-
-
-def add_top_layer(x, num_classes, fully_convolutional):
+def add_top_layer_imagenet(x, fully_convolutional):
     if fully_convolutional:
-        layer_name = "fc{}_conv".format(num_classes)
-        x = Convolution2D(num_classes, 1, 1, border_mode='same',
-                          name=layer_name)(x)
+        layer_name = "fc{}_conv".format(1000)
+        x = Convolution2D(1000, 1, 1, border_mode='same', name=layer_name)(x)
     else:
         x = AveragePooling2D((7, 7), name='avg_pool')(x)
         x = Flatten()(x)
-        layer_name = "fc{}".format(num_classes)
-        x = Dense(num_classes, activation='softmax', name=layer_name)(x)
+        layer_name = "fc{}".format(1000)
+        x = Dense(1000, activation='softmax', name=layer_name)(x)
     return x
+
+
+def add_top_layer_custom_head(x, fully_convolutional, custom_head):
+    return custom_head.add_layers(x, fully_convolutional)
 
 
 def load_main_weights(model, main_weights):
@@ -74,13 +73,6 @@ def load_main_weights(model, main_weights):
         model.load_weights(weights_path, by_name=True)
     else:
         model.load_weights(main_weights, by_name=True)
-
-
-def load_top_weights(model, top_weights, fully_convolutional):
-    if top_weights == 'imagenet':
-        load_top_layer_weights_imagenet(model, fully_convolutional)
-    else:
-        load_top_layer_weights_custom(model, top_weights, fully_convolutional)
 
 
 def load_top_layer_weights_imagenet(model, fully_convolutional):
@@ -93,19 +85,12 @@ def load_top_layer_weights_imagenet(model, fully_convolutional):
     model.get_layer(layer_name).set_weights([W, b])
 
 
+def load_top_layer_weights_custom(model, fully_convolutional, custom_head):
+    custom_head.load_weights_into(model, fully_convolutional)
+
+
 def convolutionize(W):
     return np.expand_dims(np.expand_dims(W, axis=0), axis=0)
-
-
-def load_top_layer_weights_custom(model, custom_weights, fully_convolutional):
-    W, b = get_top_layer_weights_custom(custom_weights)
-    num_classes = W.shape[1]
-    if fully_convolutional:
-        W = convolutionize(W)
-        layer_name = "fc{}_conv".format(num_classes)
-    else:
-        layer_name = "fc{}".format(num_classes)
-    model.get_layer(layer_name).set_weights([W, b])
 
 
 def get_top_layer_weights_imagenet():

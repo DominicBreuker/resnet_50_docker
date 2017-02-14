@@ -1,6 +1,6 @@
-data
-output
 base_image/resnet_50_tf.h5
+output/**/*
+custom_heads/reference_model/weights/**/*
 
 ############# PYTHON ###########
 

@@ -20,10 +20,6 @@ echo "Using data in $DATA_DIR"
 OUTPUT_DIR=$PROJECT_ROOT/output
 echo "Writing outputs to $OUTPUT_DIR"
 
-# folder containing custom model definition
-CUSTOM_MODEL_DIR=$PROJECT_ROOT/custom_heads/reference_model
-echo "Custom model is in $CUSTOM_MODEL_DIR"
-
 ##### RUN #####
 echo "Starting container..."
 
@@ -31,6 +27,5 @@ docker run --rm \
            -it \
            -v $DATA_DIR:/data \
            -v $OUTPUT_DIR:/output \
-           -v $CUSTOM_MODEL_DIR:/resnet_50/model/custom_model \
            dominicbreuker/resnet_50_docker:latest \
-           /bin/sh -c "python /resnet_50/extracting.py -e jpg -head custom -fcn True -hs 300 -ws 300"
+           /bin/sh -c "python /resnet_50/extracting.py -e jpg -head imagenet -hs 300 -ws 300"
