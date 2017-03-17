@@ -27,7 +27,6 @@ def extract_features(extension, img_size):
         name = "{}x{}_{}".format(img_size[0], img_size[1], "feature-maps")
         model = build_resnet_50(cls_head=None)
         image_files, features = extractor.extract(name, model, img_size)
-    print(image_files)
     print(features.shape)
     return image_files, features
 
